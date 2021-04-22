@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<plugin xmlns="http://www.willuhn.de/schema/jameica-plugin"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.willuhn.de/schema/jameica-plugin http://www.willuhn.de/schema/jameica-plugin-1.2.xsd"
+        name="hibiscus.splittransaction" version="0.1.0" class="hibiscus.splittransaction.Plugin">
+
+  <description>Hibiscus - Aufsplitten von Umsätzen.</description>
+  <url>https://hibiscus.tvbrowser.org/download/hibiscus.splittransaction.zip</url>
+  <homepage>https://github.com/ds10git/hibiscus.splittransaction</homepage>
+  <license>GPL v2</license>
+
+  <requires jameica="2.6.0+">
+    <import plugin="hibiscus" version="2.6.0+" required="true"/>
+  </requires>
+
+  <classfinder>
+    <include>hibiscus\.ibankstatement\.jar</include>
+    <include>.*\.class</include>
+  </classfinder>
+  
+  <extensions>
+    <!-- Hibiscus-Extensions -->
+    <extension class="hibiscus.splittransaction.ContextMenuSplitTransaction" extends="de.willuhn.jameica.hbci.gui.menus.UmsatzList" requires="hibiscus"/>
+  </extensions>
+</plugin>

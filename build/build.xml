@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<project basedir=".." default="all" name="All">
+
+	<target name="init" description="inits the build">
+
+    <property environment="env" />
+    <property name="build.dir" value="build" />
+    <buildnumber file="${build.dir}/BUILD" />
+    <xmlproperty file="plugin.xml" collapseattributes="true"/>
+
+    <loadproperties srcFile="${build.dir}/build.properties"/>
+
+    <echo message="VERSION: ${plugin.version}" />
+    <echo message="BUILD  : ${build.number}" />
+    <echo message="JAVA   : ${java.version}" />
+
+		<property name="define.jarfilename" 		value="${plugin.name}.jar" />
+		<property name="define.zipfilename" 		value="${plugin.name}.zip" />
+		<property name="define.srcfilename" 		value="${plugin.name}.src.zip" />
+		<property name="define.javadocfilename" value="${plugin.name}.javadoc.zip" />
+
+		<property name="project.release" 			  value="releases/${plugin.version}-${build.number}" />
+		<property name="project.tmp" 				    value="${project.release}/tmp" />
+		<property name="project.javadoc" 			  value="${project.release}/javadoc" />
+		<property name="project.zipdir" 			  value="${project.release}/${plugin.name}" />
+
+		<property name="src.dir" 					      value="src" />
+		<property name="lang.dir" 					    value="${src.dir}/lang" />
+		<property name="lib.dir" 					      value="lib" />
+		<property name="class.dir" 					    value="${project.tmp}/bin" />
+
+		<available file="${lib.dir}"            type="dir" property="havelib" />
+
+		<path id="compilepath">
+			<pathelement path="${define.compilepath}" />
+      <fileset dir="." >
+        <include name="${lib.dir}/**/*.jar" if="havelib"/>
+      </fileset>
+		</path>
+
+	</target>
+
+	<target depends="init" name="compile" description="compiles everything">
+
+		<mkdir dir="${class.dir}" />
+
+		<javac debug="true"
+		       includeantruntime="false"
+		       debuglevel="lines,vars,source"
+		       source="${define.java.version}"
+		       target="${define.java.version}"
+		       encoding="${define.encoding}"
+		       deprecation="true"
+		       destdir="${class.dir}"
+		       srcdir="${src.dir}">
+			<classpath refid="compilepath" />
+		</javac>
+	</target>
+
+
+	<!-- Libs nur dann hinzufuegen, wenn sie existieren -->
+	<target name="addlib" if="havelib">
+		<mkdir dir="${project.zipdir}/lib" />
+		<copy todir="${project.zipdir}/lib">
+			<fileset dir="${lib.dir}" />
+		</copy>
+	</target>
+
+	<target depends="compile" name="jar" description="generates the jar file">
+
+		<mkdir dir="${project.release}" />
+		<mkdir dir="${project.zipdir}" />
+
+		<tstamp/>
+		<jar destfile="${project.zipdir}/${define.jarfilename}">
+			<manifest>
+				<attribute name="Built-By" value="${user.name}" />
+				<attribute name="Built-Date" value="${DSTAMP}" />
+				<attribute name="Implementation-Title" value="${plugin.name}" />
+				<attribute name="Implementation-Version" value="${plugin.version}" />
+				<attribute name="Implementation-Buildnumber" value="${build.number}" />
+        <attribute name="Class-Path" value="lang help lib" />
+      </manifest>
+			<fileset dir="${class.dir}" />
+		</jar>
+	</target>
+
+  <target depends="jar" name="zip" description="generates the zip file">
+
+    <antcall target="addlib"/>
+      
+    <copy file="plugin.xml" todir="${project.zipdir}" />
+
+    <zip destfile="${project.release}/${define.zipfilename}">
+      <fileset dir="${project.release}">
+        <include name="${plugin.name}" />
+        <include name="${plugin.name}/**" />
+      </fileset>
+    </zip>
+
+  </target>
+
+
+	<target depends="init" name="src" description="build source package, depends compile target to make sure, the code has no errors">
+		<mkdir dir="${project.release}" />
+		<mkdir dir="${project.tmp}/${plugin.name}" />
+		<copy todir="${project.tmp}/${plugin.name}">
+			<fileset dir=".">
+				<include name=".project" />
+				<include name=".classpath" />
+        <include name="plugin.xml" />
+				<include name="${lib.dir}/**" />
+				<include name="${src.dir}/**" />
+				<include name="${build.dir}/**" />
+				<exclude name="${build.dir}/BUILD" />
+			</fileset>
+		</copy>
+		<zip casesensitive="true" zipfile="${project.release}/${define.srcfilename}">
+			<fileset dir="${project.tmp}">
+				<include name="${plugin.name}/**" />
+			</fileset>
+		</zip>
+	</target>
+
+
+
+	<target depends="jar" name="javadoc" description="creates the api doc">
+		<mkdir dir="${project.javadoc}" />
+
+		<javadoc destdir="${project.javadoc}" packagenames="${define.javadoc.package}.*" source="${define.java.version}">
+			<classpath refid="compilepath" />
+			<sourcepath>
+				<pathelement location="${src.dir}" />
+			</sourcepath>
+		</javadoc>
+
+		<zip casesensitive="true" zipfile="${project.release}/${define.javadocfilename}">
+			<fileset dir="${project.javadoc}">
+				<include name="**" />
+			</fileset>
+		</zip>
+	</target>
+
+	<target name="clean" description="cleanup">
+		<delete dir="${project.tmp}" />
+		<delete dir="${project.javadoc}" />
+		<delete dir="${project.zipdir}" />
+	</target>
+
+	<target depends="zip,javadoc,src,clean" description="build a release" name="all" />
+
+</project>
