@@ -215,20 +215,24 @@ public class DialogSplitTransaction extends AbstractDialog<Date> {
       final ArrayList<DecimalInput> validInputs = new ArrayList<>();
       
       for(UmsatzInput i : mInputs) {
-        if(found) {
-          if(i.mBetrag.getValue() != null) {
-            validInputs.add(i.mBetrag);
+        try {
+          if(found) {
+            if(i.mBetrag.getValue() != null) {
+              validInputs.add(i.mBetrag);
+            }
           }
-        }
-        else if(source.equals(i.mBetrag.getControl()))  {
-          found = true;
-          
-          if(i.mBetrag.getValue() != null) {
+          else if(source.equals(i.mBetrag.getControl()))  {
+            found = true;
+            
+            if(i.mBetrag.getValue() != null) {
+              betrag += (double)i.mBetrag.getValue();
+            }
+          }
+          else if(i.mBetrag.getValue() != null) {
             betrag += (double)i.mBetrag.getValue();
           }
-        }
-        else if(i.mBetrag.getValue() != null) {
-          betrag += (double)i.mBetrag.getValue();
+        }catch(Exception e) {
+          e.printStackTrace();
         }
       }
       
@@ -257,7 +261,7 @@ public class DialogSplitTransaction extends AbstractDialog<Date> {
           }
           
           validInputs.get(validInputs.size()-1).setValue(mOriginal.getBetrag()-betrag);
-        } catch (RemoteException e) {
+        } catch (Exception e) {
           // TODO Auto-generated catch block
           e.printStackTrace();
         }
@@ -316,22 +320,27 @@ public class DialogSplitTransaction extends AbstractDialog<Date> {
   }
   
   private synchronized void updateButton() {
-    double betrag = 0;
+    long betrag = 0;
     
     for(int i = 0; i < mInputs.length; i++) {
       UmsatzInput input = mInputs[i];
-      if(input.mBetrag.getValue() != null) {
-        betrag += (double)input.mBetrag.getValue();
+      try {
+        if(input.mBetrag.getValue() != null) {
+          betrag += Math.round((double)input.mBetrag.getValue()*100);
+        }
+      }catch(Exception e) {
+        e.printStackTrace();
       }
     }
     
     boolean enabled = false;
     
     try {
-     enabled = mOriginal.getBetrag() == betrag;
+      enabled = (Math.round(mOriginal.getBetrag()*100)) == betrag;
       
       if(enabled) {
         for(int i = 0; i < mInputs.length; i++) {
+          try {
           enabled = ((String)mInputs[i].mVerwendungszweck.getValue()).trim().length() > 0 && mInputs[i].mBetrag.getValue() != null;
           
           if(!enabled && i >= 2) {
@@ -339,6 +348,11 @@ public class DialogSplitTransaction extends AbstractDialog<Date> {
           }
           
           if(!enabled) {
+            break;
+          }
+          }catch(Exception e) {
+            e.printStackTrace();
+            enabled = false;
             break;
           }
         }
@@ -457,7 +471,13 @@ public class DialogSplitTransaction extends AbstractDialog<Date> {
     }
     
     private boolean isSplit() {
-      return mVerwendungszweck.getValue() != null && !((String)mVerwendungszweck.getValue()).trim().isEmpty() && mBetrag.getValue() != null;
+      boolean result = false;
+      try {
+        result = mVerwendungszweck.getValue() != null && !((String)mVerwendungszweck.getValue()).trim().isEmpty() && mBetrag.getValue() != null;
+      }catch(Exception e) {
+        e.printStackTrace();
+      }
+      return result;
     }
   }
 }
