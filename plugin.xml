@@ -3,7 +3,7 @@
 <plugin xmlns="http://www.willuhn.de/schema/jameica-plugin"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://www.willuhn.de/schema/jameica-plugin http://www.willuhn.de/schema/jameica-plugin-1.2.xsd"
-        name="hibiscus.splittransaction" version="0.2.0" class="hibiscus.splittransaction.Plugin">
+        name="hibiscus.splittransaction" version="0.3.0" class="hibiscus.splittransaction.Plugin">
 
   <description>Hibiscus - Aufsplitten von Umsätzen.</description>
   <url>https://hibiscus.tvbrowser.org/download/hibiscus.splittransaction.zip</url>
