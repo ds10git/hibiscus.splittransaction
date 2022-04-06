@@ -77,6 +77,7 @@ public class DialogSplitTransaction extends AbstractDialog<Date> {
   private UmsatzInput[] mInputs;
   private Button mOk; 
   private CheckboxInput mAutoCalc;
+  private long mCentBetragOriginal;
   
   
   public DialogSplitTransaction(final Umsatz original) {
@@ -120,6 +121,7 @@ public class DialogSplitTransaction extends AbstractDialog<Date> {
     c.addInput(mAutoCalc);
     
     if(mOriginal.getUmsatzTyp() != null) {
+      mCentBetragOriginal = Math.round(mOriginal.getBetrag()*100);
       String[] keys = SETTINGS.getList(mOriginal.getUmsatzTyp().getID(), null);
       
       if(keys != null && keys.length > 0) {
@@ -203,7 +205,6 @@ public class DialogSplitTransaction extends AbstractDialog<Date> {
     buttons.addButton("Abbrechen", new Action() {
       @Override
       public void handleAction(Object context) throws ApplicationException {
-        
         close();
       }
     }, null, false, "process-stop.png");
@@ -463,34 +464,26 @@ public class DialogSplitTransaction extends AbstractDialog<Date> {
       }
     }
     
-    boolean enabled = false;
+    boolean enabled = (mCentBetragOriginal == betrag);
     
-    try {
-      enabled = ((long)(mOriginal.getBetrag()*100)) == betrag;
-      
-      if(enabled) {
-        for(int i = 0; i < mInputs.length; i++) {
-          try {
-            enabled = mInputs[i].isValid();
-            
-            if(!enabled && i >= 2) {
-              enabled = mInputs[i].isEmpty();
-            }
-            
-            if(!enabled) {
-              break;
-            }
-          }catch(Exception e) {
-            e.printStackTrace();
-            enabled = false;
+    if(enabled) {
+      for(int i = 0; i < mInputs.length; i++) {
+        try {
+          enabled = mInputs[i].isValid();
+          
+          if(!enabled && i >= 2) {
+            enabled = mInputs[i].isEmpty();
+          }
+          
+          if(!enabled) {
             break;
           }
+        }catch(Exception e) {
+          e.printStackTrace();
+          enabled = false;
+          break;
         }
       }
-    } catch (RemoteException e) {
-      enabled = false;
-      // TODO Auto-generated catch block
-      e.printStackTrace();
     }
     
     mOk.setEnabled(enabled);
