@@ -120,8 +120,9 @@ public class DialogSplitTransaction extends AbstractDialog<Date> {
     mAutoCalc.setName("Beträge automatisch neu berechnen");
     c.addInput(mAutoCalc);
     
+    mCentBetragOriginal = Math.round(mOriginal.getBetrag()*100);
+    
     if(mOriginal.getUmsatzTyp() != null) {
-      mCentBetragOriginal = Math.round(mOriginal.getBetrag()*100);
       String[] keys = SETTINGS.getList(mOriginal.getUmsatzTyp().getID(), null);
       
       if(keys != null && keys.length > 0) {
