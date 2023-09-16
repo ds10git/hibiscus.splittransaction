@@ -238,7 +238,7 @@ public class DialogSplitTransaction extends AbstractDialog<Date> {
           
           mOriginal.delete();
           
-          Application.getMessagingFactory().sendMessage(new ObjectDeletedMessage(mOriginal));
+          Application.getMessagingFactory().sendMessage(new ObjectDeletedMessage(mOriginal, null));
           
           String key = null;
           
