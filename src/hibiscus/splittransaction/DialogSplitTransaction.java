@@ -68,8 +68,9 @@ import de.willuhn.util.ApplicationException;
  */
 public class DialogSplitTransaction extends AbstractDialog<Date> {
   private static final int NUMBER_INPUTS = 4;
-  private static final int WIDTH = 800;
+  private static final int WIDTH = 1000;
   private static final int HEIGHT = 650;
+  private static final int WEIGHT_KATEGORIE = 6;
   
   private static final de.willuhn.jameica.system.Settings SETTINGS = new de.willuhn.jameica.system.Settings(DialogSplitTransaction.class);
   
@@ -154,6 +155,7 @@ public class DialogSplitTransaction extends AbstractDialog<Date> {
     final LabelInput verw = new LabelInput("Verwendungszweck");
     final LabelInput betrag = new LabelInput("Betrag");
     final LabelInput kategorie = new LabelInput("Umsatz-Kategorie");
+    kategorie.setData(MultiInput.DATA_WEIGHT, WEIGHT_KATEGORIE);
     kategorie.setName("");
     
     final MultiInput label = new MultiInput(verw,new MultiInput(betrag,kategorie));
@@ -590,6 +592,7 @@ public class DialogSplitTransaction extends AbstractDialog<Date> {
         mUmsatzTyp = new UmsatzTypInput(ut, typ, true);
         mUmsatzTyp.setComment("");
         mUmsatzTyp.setName("");
+        mUmsatzTyp.setData(MultiInput.DATA_WEIGHT, WEIGHT_KATEGORIE);
         
         mUmsatzTyp.setEnabled(u == null || ((u.getFlags() & Umsatz.FLAG_NOTBOOKED) == 0));
       //end of copy
